@@ -15,8 +15,9 @@
   object-fit: cover;
   object-position: 50% 25%;
   opacity: 0;
-  filter: grayscale(1) contrast(1.12);
-  transition: opacity 1.25s ease, filter 1.35s ease;
+  filter: grayscale(1) contrast(1.08) blur(2px);
+  transform: scale(1.012);
+  transition: filter 2.8s cubic-bezier(.22, 1, .36, 1), transform 2.4s ease;
 }
 
 .portrait-card.photo-emerging img,
@@ -25,9 +26,15 @@
   opacity: 1;
 }
 
+.portrait-card.photo-focused img {
+  filter: grayscale(1) contrast(1.08) blur(0);
+  transform: scale(1);
+}
+
 .portrait-card.colorizing img,
 .portrait-card.decoded img {
   filter: grayscale(0) saturate(.9) contrast(1.03);
+  transform: scale(1);
 }
 
 .portrait-matrix {
@@ -38,6 +45,7 @@
   inset: 0;
   display: block;
   background: transparent;
+  mix-blend-mode: multiply;
 }
 
 .portrait-matrix[hidden] {

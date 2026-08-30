@@ -49,7 +49,8 @@ if (portraitCard && portraitImage && matrixCanvas) {
   const startMatrixReveal = () => {
     if (animationStarted) return;
     animationStarted = true;
-    portraitCard.classList.remove("decoded", "colorizing", "photo-emerging");
+    portraitCard.classList.remove("decoded", "colorizing", "photo-emerging", "photo-focused");
+    portraitImage.style.opacity = "0";
     matrixCanvas.hidden = false;
     matrixCanvas.style.opacity = "1";
     if (matrixReplay) {
@@ -110,7 +111,11 @@ if (portraitCard && portraitImage && matrixCanvas) {
       }
     }
     const startTime = performance.now();
-    const duration = 7600;
+    const duration = 10500;
+    const smoothstep = (start, end, value) => {
+      const amount = Math.max(0, Math.min(1, (value - start) / (end - start)));
+      return amount * amount * (3 - 2 * amount);
+    };
 
     const drawFrame = now => {
       const progress = Math.min(1, (now - startTime) / duration);
@@ -132,12 +137,17 @@ if (portraitCard && portraitImage && matrixCanvas) {
 
       if (progress > .66) {
         portraitCard.classList.add("photo-emerging");
-        matrixCanvas.style.opacity = String(Math.max(0, 1 - (progress - .66) / .22));
+        const photoBlend = smoothstep(.66, .91, progress);
+        const characterBlend = 1 - smoothstep(.73, .96, progress);
+        portraitImage.style.opacity = String(photoBlend);
+        matrixCanvas.style.opacity = String(characterBlend);
       }
-      if (progress > .88) portraitCard.classList.add("colorizing");
+      if (progress > .82) portraitCard.classList.add("photo-focused");
+      if (progress > .94) portraitCard.classList.add("colorizing");
       if (progress < 1) {
         requestAnimationFrame(drawFrame);
       } else {
+        portraitImage.style.opacity = "1";
         matrixCanvas.hidden = true;
         portraitCard.classList.add("decoded");
         animationStarted = false;
