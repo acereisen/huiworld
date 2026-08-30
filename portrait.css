@@ -4,7 +4,7 @@
   border: 1px solid var(--ink);
   position: relative;
   overflow: hidden;
-  background: var(--ink);
+  background: var(--paper);
 }
 
 .portrait-card img {
@@ -14,8 +14,15 @@
   inset: 0;
   object-fit: cover;
   object-position: 50% 25%;
+  opacity: 0;
   filter: grayscale(1) contrast(1.12);
-  transition: filter 1.25s ease;
+  transition: opacity 1.25s ease, filter 1.35s ease;
+}
+
+.portrait-card.photo-emerging img,
+.portrait-card.colorizing img,
+.portrait-card.decoded img {
+  opacity: 1;
 }
 
 .portrait-card.colorizing img,
@@ -30,7 +37,7 @@
   z-index: 2;
   inset: 0;
   display: block;
-  background: var(--paper);
+  background: transparent;
 }
 
 .portrait-matrix[hidden] {
@@ -67,6 +74,13 @@
   position: absolute;
   inset: 60% 0 0;
   background: linear-gradient(transparent, #101418e8);
+  opacity: 0;
+  transition: opacity .8s ease;
+}
+
+.portrait-card.photo-emerging::after,
+.portrait-card.decoded::after {
+  opacity: 1;
 }
 
 .portrait-card figcaption {

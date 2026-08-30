@@ -49,8 +49,9 @@ if (portraitCard && portraitImage && matrixCanvas) {
   const startMatrixReveal = () => {
     if (animationStarted) return;
     animationStarted = true;
-    portraitCard.classList.remove("decoded", "colorizing");
+    portraitCard.classList.remove("decoded", "colorizing", "photo-emerging");
     matrixCanvas.hidden = false;
+    matrixCanvas.style.opacity = "1";
     if (matrixReplay) {
       matrixReplay.disabled = true;
       matrixReplay.textContent = "DECODING...";
@@ -60,7 +61,7 @@ if (portraitCard && portraitImage && matrixCanvas) {
     const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
     const width = Math.max(1, Math.round(rect.width));
     const height = Math.max(1, Math.round(rect.height));
-    const cell = width < 270 ? 10 : 11;
+    const cell = width < 270 ? 8 : 9;
     const columns = Math.ceil(width / cell);
     const rows = Math.ceil(height / cell);
 
@@ -85,35 +86,55 @@ if (portraitCard && portraitImage && matrixCanvas) {
     }
     sampleContext.drawImage(portraitImage, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, columns, rows);
     const pixels = sampleContext.getImageData(0, 0, columns, rows).data;
-    const seeds = Array.from({ length: columns * rows }, () => Math.random());
-    const digits = Array.from({ length: columns * rows }, () => Math.random() > .5 ? "1" : "0");
+    const glyphs = ["0", "1", "0", "1", "+", "."];
+    const particles = [];
+    for (let row = 0; row < rows; row++) {
+      for (let column = 0; column < columns; column++) {
+        const index = row * columns + column;
+        const pixelIndex = index * 4;
+        const luminance = (pixels[pixelIndex] * .2126 + pixels[pixelIndex + 1] * .7152 + pixels[pixelIndex + 2] * .0722) / 255;
+        const darkness = 1 - luminance;
+        if (Math.random() > .06 + darkness * .88) continue;
+        const spawn = .08 + Math.random() * .28;
+        particles.push({
+          x: column * cell + cell / 2,
+          y: row * cell + cell / 2,
+          startY: -cell * (2 + Math.random() * 22),
+          spawn,
+          settle: Math.min(.57, spawn + .16 + Math.random() * .20),
+          glyph: glyphs[Math.floor(Math.min(glyphs.length - 1, luminance * glyphs.length))],
+          alpha: .3 + darkness * .7,
+          sway: (Math.random() - .5) * cell * 2.4,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+    }
     const startTime = performance.now();
-    const duration = 6200;
+    const duration = 7600;
 
     const drawFrame = now => {
       const progress = Math.min(1, (now - startTime) / duration);
-      const reveal = Math.max(0, Math.min(1, (progress - .24) / .58));
       matrixContext.clearRect(0, 0, width, height);
       matrixContext.textAlign = "center";
       matrixContext.textBaseline = "middle";
       matrixContext.font = `700 ${Math.max(9, cell - 2)}px ui-monospace, SFMono-Regular, Consolas, monospace`;
 
-      for (let row = 0; row < rows; row++) {
-        for (let column = 0; column < columns; column++) {
-          const index = row * columns + column;
-          const wave = column / columns * .6 + row / rows * .18 + seeds[index] * .22;
-          if (reveal > wave) continue;
-
-          const pixelIndex = index * 4;
-          const luminance = (pixels[pixelIndex] * .2126 + pixels[pixelIndex + 1] * .7152 + pixels[pixelIndex + 2] * .0722) / 255;
-          matrixContext.fillStyle = "#f4f1e8";
-          matrixContext.fillRect(column * cell, row * cell, cell + 1, cell + 1);
-          matrixContext.fillStyle = `rgba(16,20,24,${.18 + (1 - luminance) * .82})`;
-          matrixContext.fillText(digits[index], column * cell + cell / 2, row * cell + cell / 2);
-        }
+      for (const particle of particles) {
+        if (progress < particle.spawn) continue;
+        const travel = Math.min(1, (progress - particle.spawn) / (particle.settle - particle.spawn));
+        const eased = 1 - Math.pow(1 - travel, 3);
+        const x = particle.x + particle.sway * (1 - eased) * Math.sin(particle.phase + travel * 5);
+        const y = particle.startY + (particle.y - particle.startY) * eased;
+        const flicker = travel < 1 && Math.random() < .035 ? (particle.glyph === "0" ? "1" : "0") : particle.glyph;
+        matrixContext.fillStyle = `rgba(16,20,24,${particle.alpha * Math.min(1, travel * 2.5)})`;
+        matrixContext.fillText(flicker, x, y);
       }
 
-      if (progress > .78) portraitCard.classList.add("colorizing");
+      if (progress > .66) {
+        portraitCard.classList.add("photo-emerging");
+        matrixCanvas.style.opacity = String(Math.max(0, 1 - (progress - .66) / .22));
+      }
+      if (progress > .88) portraitCard.classList.add("colorizing");
       if (progress < 1) {
         requestAnimationFrame(drawFrame);
       } else {
