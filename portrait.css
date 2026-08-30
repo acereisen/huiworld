@@ -14,7 +14,27 @@
   inset: 0;
   object-fit: cover;
   object-position: 50% 25%;
-  filter: saturate(.86) contrast(1.03);
+  filter: grayscale(1) contrast(1.12);
+  transition: filter 1.25s ease;
+}
+
+.portrait-card.colorizing img,
+.portrait-card.decoded img {
+  filter: grayscale(0) saturate(.9) contrast(1.03);
+}
+
+.portrait-matrix {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  background: var(--paper);
+}
+
+.portrait-matrix[hidden] {
+  display: none;
 }
 
 .portrait-card::after {
@@ -34,6 +54,14 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .65s ease, transform .65s ease;
+}
+
+.portrait-card.decoded figcaption {
+  opacity: 1;
+  transform: none;
 }
 
 .portrait-card small {
@@ -80,5 +108,20 @@
 
   .portrait-card img {
     object-position: 50% 22%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-matrix {
+    display: none;
+  }
+
+  .portrait-card img {
+    filter: saturate(.9) contrast(1.03);
+  }
+
+  .portrait-card figcaption {
+    opacity: 1;
+    transform: none;
   }
 }

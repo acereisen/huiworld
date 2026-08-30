@@ -34,3 +34,100 @@ document.querySelectorAll(".tilt").forEach(card => {
   });
   card.addEventListener("pointerleave", () => card.style.transform = "");
 });
+
+const portraitCard = document.querySelector(".portrait-card");
+const portraitImage = portraitCard?.querySelector("img");
+const matrixCanvas = portraitCard?.querySelector(".portrait-matrix");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+if (portraitCard && portraitImage && matrixCanvas && !reduceMotion) {
+  const matrixContext = matrixCanvas.getContext("2d", { alpha: true });
+  const sampleCanvas = document.createElement("canvas");
+  const sampleContext = sampleCanvas.getContext("2d", { willReadFrequently: true });
+  let animationStarted = false;
+
+  const startMatrixReveal = () => {
+    if (animationStarted) return;
+    animationStarted = true;
+
+    const rect = portraitCard.getBoundingClientRect();
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+    const width = Math.max(1, Math.round(rect.width));
+    const height = Math.max(1, Math.round(rect.height));
+    const cell = width < 270 ? 10 : 11;
+    const columns = Math.ceil(width / cell);
+    const rows = Math.ceil(height / cell);
+
+    matrixCanvas.width = Math.round(width * pixelRatio);
+    matrixCanvas.height = Math.round(height * pixelRatio);
+    matrixContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    sampleCanvas.width = columns;
+    sampleCanvas.height = rows;
+    sampleContext.filter = "grayscale(1) contrast(1.15)";
+    const sourceRatio = portraitImage.naturalWidth / portraitImage.naturalHeight;
+    const targetRatio = columns / rows;
+    let sourceX = 0;
+    let sourceY = 0;
+    let sourceWidth = portraitImage.naturalWidth;
+    let sourceHeight = portraitImage.naturalHeight;
+    if (sourceRatio > targetRatio) {
+      sourceWidth = sourceHeight * targetRatio;
+      sourceX = (portraitImage.naturalWidth - sourceWidth) / 2;
+    } else {
+      sourceHeight = sourceWidth / targetRatio;
+      sourceY = (portraitImage.naturalHeight - sourceHeight) * .25;
+    }
+    sampleContext.drawImage(portraitImage, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, columns, rows);
+    const pixels = sampleContext.getImageData(0, 0, columns, rows).data;
+    const seeds = Array.from({ length: columns * rows }, () => Math.random());
+    const digits = Array.from({ length: columns * rows }, () => Math.random() > .5 ? "1" : "0");
+    const startTime = performance.now();
+    const duration = 4300;
+
+    const drawFrame = now => {
+      const progress = Math.min(1, (now - startTime) / duration);
+      const reveal = Math.max(0, Math.min(1, (progress - .16) / .62));
+      matrixContext.clearRect(0, 0, width, height);
+      matrixContext.textAlign = "center";
+      matrixContext.textBaseline = "middle";
+      matrixContext.font = `700 ${Math.max(9, cell - 2)}px ui-monospace, SFMono-Regular, Consolas, monospace`;
+
+      for (let row = 0; row < rows; row++) {
+        for (let column = 0; column < columns; column++) {
+          const index = row * columns + column;
+          const wave = column / columns * .6 + row / rows * .18 + seeds[index] * .22;
+          if (reveal > wave) continue;
+
+          const pixelIndex = index * 4;
+          const luminance = (pixels[pixelIndex] * .2126 + pixels[pixelIndex + 1] * .7152 + pixels[pixelIndex + 2] * .0722) / 255;
+          matrixContext.fillStyle = "#f4f1e8";
+          matrixContext.fillRect(column * cell, row * cell, cell + 1, cell + 1);
+          matrixContext.fillStyle = `rgba(16,20,24,${.18 + (1 - luminance) * .82})`;
+          matrixContext.fillText(digits[index], column * cell + cell / 2, row * cell + cell / 2);
+        }
+      }
+
+      if (progress > .68) portraitCard.classList.add("colorizing");
+      if (progress < 1) {
+        requestAnimationFrame(drawFrame);
+      } else {
+        matrixCanvas.hidden = true;
+        portraitCard.classList.add("decoded");
+      }
+    };
+
+    requestAnimationFrame(drawFrame);
+  };
+
+  const matrixObserver = new IntersectionObserver(entries => {
+    if (entries.some(entry => entry.isIntersecting)) {
+      if (portraitImage.complete) startMatrixReveal();
+      else portraitImage.addEventListener("load", startMatrixReveal, { once: true });
+      matrixObserver.disconnect();
+    }
+  }, { threshold: .35 });
+
+  matrixObserver.observe(portraitCard);
+} else if (portraitCard) {
+  portraitCard.classList.add("decoded", "colorizing");
+}
