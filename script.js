@@ -38,9 +38,9 @@ document.querySelectorAll(".tilt").forEach(card => {
 const portraitCard = document.querySelector(".portrait-card");
 const portraitImage = portraitCard?.querySelector("img");
 const matrixCanvas = portraitCard?.querySelector(".portrait-matrix");
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const matrixReplay = portraitCard?.querySelector(".matrix-replay");
 
-if (portraitCard && portraitImage && matrixCanvas && !reduceMotion) {
+if (portraitCard && portraitImage && matrixCanvas) {
   const matrixContext = matrixCanvas.getContext("2d", { alpha: true });
   const sampleCanvas = document.createElement("canvas");
   const sampleContext = sampleCanvas.getContext("2d", { willReadFrequently: true });
@@ -49,6 +49,12 @@ if (portraitCard && portraitImage && matrixCanvas && !reduceMotion) {
   const startMatrixReveal = () => {
     if (animationStarted) return;
     animationStarted = true;
+    portraitCard.classList.remove("decoded", "colorizing");
+    matrixCanvas.hidden = false;
+    if (matrixReplay) {
+      matrixReplay.disabled = true;
+      matrixReplay.textContent = "DECODING...";
+    }
 
     const rect = portraitCard.getBoundingClientRect();
     const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -82,11 +88,11 @@ if (portraitCard && portraitImage && matrixCanvas && !reduceMotion) {
     const seeds = Array.from({ length: columns * rows }, () => Math.random());
     const digits = Array.from({ length: columns * rows }, () => Math.random() > .5 ? "1" : "0");
     const startTime = performance.now();
-    const duration = 4300;
+    const duration = 6200;
 
     const drawFrame = now => {
       const progress = Math.min(1, (now - startTime) / duration);
-      const reveal = Math.max(0, Math.min(1, (progress - .16) / .62));
+      const reveal = Math.max(0, Math.min(1, (progress - .24) / .58));
       matrixContext.clearRect(0, 0, width, height);
       matrixContext.textAlign = "center";
       matrixContext.textBaseline = "middle";
@@ -107,12 +113,17 @@ if (portraitCard && portraitImage && matrixCanvas && !reduceMotion) {
         }
       }
 
-      if (progress > .68) portraitCard.classList.add("colorizing");
+      if (progress > .78) portraitCard.classList.add("colorizing");
       if (progress < 1) {
         requestAnimationFrame(drawFrame);
       } else {
         matrixCanvas.hidden = true;
         portraitCard.classList.add("decoded");
+        animationStarted = false;
+        if (matrixReplay) {
+          matrixReplay.disabled = false;
+          matrixReplay.textContent = "REPLAY DECODE";
+        }
       }
     };
 
@@ -128,6 +139,7 @@ if (portraitCard && portraitImage && matrixCanvas && !reduceMotion) {
   }, { threshold: .35 });
 
   matrixObserver.observe(portraitCard);
+  matrixReplay?.addEventListener("click", startMatrixReveal);
 } else if (portraitCard) {
   portraitCard.classList.add("decoded", "colorizing");
 }

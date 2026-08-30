@@ -37,6 +37,31 @@
   display: none;
 }
 
+.matrix-replay {
+  position: absolute;
+  z-index: 4;
+  top: 12px;
+  right: 12px;
+  padding: 7px 9px;
+  border: 1px solid var(--cyan);
+  background: #101418dc;
+  color: var(--cyan);
+  font: 800 9px/1 Arial, sans-serif;
+  letter-spacing: .13em;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.matrix-replay:hover:not(:disabled) {
+  background: var(--cyan);
+  color: var(--ink);
+}
+
+.matrix-replay:disabled {
+  cursor: wait;
+  opacity: .72;
+}
+
 .portrait-card::after {
   content: "";
   position: absolute;
@@ -108,20 +133,5 @@
 
   .portrait-card img {
     object-position: 50% 22%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .portrait-matrix {
-    display: none;
-  }
-
-  .portrait-card img {
-    filter: saturate(.9) contrast(1.03);
-  }
-
-  .portrait-card figcaption {
-    opacity: 1;
-    transform: none;
   }
 }
