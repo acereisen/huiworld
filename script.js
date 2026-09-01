@@ -34,3 +34,36 @@ document.querySelectorAll(".tilt").forEach(card => {
   });
   card.addEventListener("pointerleave", () => card.style.transform = "");
 });
+
+const sideNav = document.querySelector("#side-nav");
+const sideToggle = document.querySelector(".side-toggle");
+const sideBackdrop = document.querySelector(".side-nav-backdrop");
+let sideAutoClose;
+
+function setSideNav(open) {
+  sideNav.classList.toggle("is-open", open);
+  sideBackdrop.classList.toggle("is-visible", open);
+  sideToggle.setAttribute("aria-expanded", String(open));
+  sideToggle.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+  clearTimeout(sideAutoClose);
+}
+
+sideToggle.addEventListener("click", () => setSideNav(!sideNav.classList.contains("is-open")));
+sideBackdrop.addEventListener("click", () => setSideNav(false));
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") setSideNav(false);
+});
+document.querySelectorAll(".side-links a[href^='#']").forEach(link => {
+  link.addEventListener("click", () => setSideNav(false));
+});
+
+const sectionLinks = [...document.querySelectorAll(".side-links a[href^='#']")];
+const sectionObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    sectionLinks.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`));
+  });
+}, { rootMargin: "-35% 0px -55%", threshold: 0 });
+document.querySelectorAll("main section[id]").forEach(section => sectionObserver.observe(section));
+
+sideAutoClose = setTimeout(() => setSideNav(false), 2500);
