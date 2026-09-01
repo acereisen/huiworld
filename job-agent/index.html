@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="HuiWorld Job Agent — 本地优先、安全可控的 Python 求职助手。">
+  <title>Job Agent | HuiWorld</title>
+  <style>
+    :root{--ink:#11201e;--muted:#53615e;--paper:#f3f0e8;--lime:#c8ff54;--cyan:#46d9d1;--line:rgba(17,32,30,.16)}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.shell{width:min(1120px,calc(100% - 40px));margin:auto}nav{display:flex;justify-content:space-between;align-items:center;padding:28px 0;border-bottom:1px solid var(--line)}nav a{color:inherit;text-decoration:none}.brand{font-weight:900;letter-spacing:.08em}.brand span{color:#318c86}.back{font-size:.9rem}.hero{padding:100px 0 72px}.eyebrow{font-size:.76rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.eyebrow:before{content:"";display:inline-block;width:32px;height:3px;margin:0 10px 3px 0;background:var(--cyan)}h1{max-width:900px;margin:22px 0;font-size:clamp(3.2rem,8vw,7rem);line-height:.91;letter-spacing:-.065em}h1 em{font-style:normal;color:#318c86}.lede{max-width:700px;color:var(--muted);font-size:clamp(1.05rem,2vw,1.35rem);line-height:1.65}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}.button{padding:14px 20px;border:1px solid var(--ink);font-weight:800;text-decoration:none;color:var(--ink)}.primary{background:var(--ink);color:white}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:0 0 80px}.card{min-height:210px;padding:26px;border:1px solid var(--line);background:rgba(255,255,255,.36)}.card:nth-child(2){background:var(--lime)}.card small{font-weight:900;letter-spacing:.12em}.card h2{margin:54px 0 10px;font-size:1.45rem}.card p{color:var(--muted);line-height:1.55}.steps{background:var(--ink);color:white;padding:76px 0}.steps h2{font-size:clamp(2rem,4vw,4rem);margin:0 0 32px}.command{padding:20px;overflow:auto;background:#07110f;color:var(--lime);border-left:4px solid var(--cyan);font:14px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace}footer{display:flex;justify-content:space-between;padding:30px 0;color:var(--muted);font-size:.85rem}@media(max-width:760px){.hero{padding-top:72px}.grid{grid-template-columns:1fr}.card{min-height:170px}.card h2{margin-top:30px}footer{gap:20px;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <nav class="shell"><a class="brand" href="/">HUI<span>WORLD</span></a><a class="back" href="/">← 返回个人主页</a></nav>
+  <main>
+    <section class="hero shell">
+      <div class="eyebrow">Python / SQLite / Human in the loop</div>
+      <h1>Find better jobs.<br><em>Stay in control.</em></h1>
+      <p class="lede">一个本地优先的 Python 求职 Agent：自动采集职位、匹配个人技能、去重并生成申请草稿。最终投递始终由你确认。</p>
+      <div class="actions"><a class="button primary" href="https://github.com/acereisen/huiworld/tree/main/job-agent">查看 GitHub 源码 ↗</a><a class="button" href="#start">快速开始 ↓</a></div>
+    </section>
+    <section class="grid shell">
+      <article class="card"><small>01 / DISCOVER</small><h2>职位采集</h2><p>支持示例数据和 Adzuna Jobs API，并可继续扩展合规的公开数据源。</p></article>
+      <article class="card"><small>02 / MATCH</small><h2>智能匹配</h2><p>综合目标职位、技能、地点和排除词评分，高匹配岗位优先展示。</p></article>
+      <article class="card"><small>03 / REVIEW</small><h2>人工确认</h2><p>生成个性化申请草稿，但不会绕过验证码、登录网站或未经确认自动投递。</p></article>
+    </section>
+    <section class="steps" id="start"><div class="shell"><h2>三步开始</h2><div class="command">Copy-Item profile.example.json profile.json<br># 编辑 profile.json<br>python job_agent.py search --source demo<br>python job_agent.py list --min-score 40<br>python job_agent.py draft 1</div></div></section>
+  </main>
+  <footer class="shell"><span>© 2026 Huihui Chen</span><span>Open source · Local first · Safe by design</span></footer>
+</body>
+</html>

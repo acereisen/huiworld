@@ -1,0 +1,6 @@
+profile.json
+jobs.db
+jobs.db-*
+drafts/
+__pycache__/
+.venv/
