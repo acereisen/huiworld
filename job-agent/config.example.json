@@ -1,0 +1,8 @@
+{
+  "default_source": "demo",
+  "database": "jobs.db",
+  "draft_directory": "drafts",
+  "schedule": { "interval": "2h", "jitter_seconds": 60 },
+  "retry": { "max_attempts": 3, "base_delay_seconds": 2 },
+  "sources": { "adzuna": { "country": "de", "app_id": "", "app_key": "", "results_per_page": 30, "timeout_seconds": 20 } }
+}
